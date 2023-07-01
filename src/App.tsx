@@ -1,12 +1,16 @@
-import './App.css'
+import "./App.css";
+import NavigationRouter from "./shared/components/NavigationRouter";
+import { NavLink } from "react-router-dom";
+import axios from 'axios';
+import { useEffect } from "react";
 
 function App() {
-
+  
   return (
     <>
-      Hello world
+      <NavigationRouter />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
