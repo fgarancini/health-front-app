@@ -4,8 +4,9 @@ import * as Yup from "yup";
 import { useFormik } from "formik";
 import { AuthApi } from "../api/auth.api";
 import { useNavigate } from "react-router-dom";
+import { ErrorValidationResponse } from "../interfaces/interfaces";
+import Loader from "../../shared/components/Loader";
 const LoginForm = () => {
-
   const navigate = useNavigate();
 
   const { handleChange, handleSubmit, isSubmitting, values, touched, errors } =
@@ -20,19 +21,22 @@ const LoginForm = () => {
         email: Yup.string().required("Required"),
         password: Yup.string().required("Required"),
       }),
-      onSubmit: async (values, { setSubmitting }) => {
+      onSubmit: async (values, { setSubmitting, setErrors, resetForm }) => {
         setSubmitting(true);
         const authApi = new AuthApi();
+        const response = await authApi.login(values.email, values.password);
 
-        await authApi.login(values.email, values.password);
-
-        if (localStorage.getItem("token")) {
+        if (response?.status === 200 && localStorage.getItem("token")) {
           setSubmitting(false);
-          navigate('/diagnosis')
+          resetForm();
+          navigate("/diagnosis");
+        } else if ((response as ErrorValidationResponse)?.errors) {
+          setErrors((response as ErrorValidationResponse)?.errors);
+          return false;
         }
       },
     });
-    
+
   return (
     <form onSubmit={handleSubmit}>
       <div className={`${styles.login} m-3 shadow-lg shadow-cyan-200/70`}>
@@ -65,13 +69,16 @@ const LoginForm = () => {
             </div>
           </div>
           <div className="mt-3 flex items-center justify-center gap-x-6">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="rounded bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-            >
-              Log in
-            </button>
+            {isSubmitting ? (
+              <Loader />
+            ) : (
+              <button
+                type="submit"
+                className="rounded bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              >
+                Log in
+              </button>
+            )}
           </div>
         </div>
       </div>

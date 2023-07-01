@@ -1,8 +1,8 @@
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-type Props = {}
 
-const CustomDatePicker = (props: Props) => {
+
+const CustomDatePicker = () => {
   return (
     <div className="col-span-3">
     <label className="after:content-['*'] after:ml-0.5 after:text-red-500 block text-sm font-medium leading-6 text-gray-900">

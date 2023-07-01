@@ -1,47 +1,70 @@
 import { useFormik } from "formik";
-import styles from "../styles/login.module.css";
-import Input from "../components/Input";
-import CustomSelect from "../components/CustomSelect";
-import CustomDatePicker from "../components/CustomDatePicker";
+import { useState } from "react";
 import * as Yup from "yup";
-import { GenderOption, UserInitialState } from "../interfaces/interfaces";
 import { AuthApi } from "../api/auth.api";
-import { apiInstance } from "../../shared/api/api";
+import CustomDatePicker from "../components/CustomDatePicker";
+import CustomSelect from "../components/CustomSelect";
+import Input from "../components/Input";
+import {
+  ErrorValidationResponse,
+  GenderOption,
+  UserInitialState,
+} from "../interfaces/interfaces";
+import styles from "../styles/login.module.css";
+import Loader from "../../shared/components/Loader";
 
 const RegisterForm = () => {
-  const { handleChange, setFieldValue, handleSubmit, values, touched, errors } =
-    useFormik({
-      validateOnChange: true,
-      initialValues: {
-        first_name: "",
-        last_name: "",
-        gender: undefined,
-        birthdate: new Date(),
-        email: "",
-        password: "",
-      },
-      // enableReinitialize: true,
-      validationSchema: Yup.object({
-        first_name: Yup.string().required("Required"),
-        last_name: Yup.string().required("Required"),
-        gender: Yup.object<GenderOption>().required("Required"),
-        birthdate: Yup.date().required("Required"),
-        email: Yup.string().required("Required"),
-        password: Yup.string().required("Required"),
-      }),
-      onSubmit: (values: UserInitialState) => {
-        // console.log("🚀 ~ file: RegisterForm.tsx:32 ~ RegisterForm ~ values:", values)
-
-        AuthApi.getInstance().register(
-          values.first_name,
-          values.last_name,
-          values.gender?.label,
-          values.birthdate,
-          values.email,
-          values.password
-        );
-      },
-    });
+  const [registerCompleted, setRegisterCompleted] = useState<boolean>(false);
+  const {
+    handleChange,
+    setFieldValue,
+    handleSubmit,
+    values,
+    touched,
+    errors,
+    isSubmitting,
+  } = useFormik({
+    validateOnChange: true,
+    initialValues: {
+      first_name: "",
+      last_name: "",
+      gender: undefined,
+      birthdate: new Date(),
+      email: "",
+      password: "",
+    },
+    validationSchema: Yup.object({
+      first_name: Yup.string().required("Required"),
+      last_name: Yup.string().required("Required"),
+      gender: Yup.object<GenderOption>().required("Required"),
+      birthdate: Yup.date().required("Required"),
+      email: Yup.string().required("Required"),
+      password: Yup.string().required("Required"),
+    }),
+    onSubmit: async (
+      values: UserInitialState,
+      { setSubmitting, resetForm, setErrors }
+    ) => {
+      setSubmitting(true);
+      const authApi = new AuthApi();
+      const response = await authApi.register(
+        values.first_name,
+        values.last_name,
+        values.gender?.label,
+        values.birthdate,
+        values.email,
+        values.password
+      );
+      if (response?.status === 200) {
+        setRegisterCompleted(true);
+        setSubmitting(false);
+        resetForm();
+      } else if ((response as ErrorValidationResponse)?.errors) {
+        setErrors((response as ErrorValidationResponse)?.errors);
+        return false;
+      }
+    },
+  });
 
   return (
     <form onSubmit={handleSubmit}>
@@ -85,6 +108,7 @@ const RegisterForm = () => {
                 name="gender"
                 error={errors.gender}
                 touched={touched.gender}
+                required={true}
               />{" "}
               <CustomDatePicker />
               <Input
@@ -109,15 +133,21 @@ const RegisterForm = () => {
               />
             </div>
           </div>
+          {registerCompleted && (
+            <p className="text-cyan-700">Register complete!</p>
+          )}
         </div>
-
         <div className="mt-6 flex items-center justify-center gap-x-6">
-          <button
-            type="submit"
-            className="rounded bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          >
-            Register
-          </button>
+          {isSubmitting ? (
+            <Loader />
+          ) : (
+            <button
+              type="submit"
+              className="rounded bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >
+              Register
+            </button>
+          )}
         </div>
       </div>
     </form>

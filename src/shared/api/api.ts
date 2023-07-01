@@ -14,5 +14,5 @@ export const apiInstance = (accessToken?: string) => {
   return axios.create({
     baseURL:`${config.apiUrl}`,
     headers
-  })
+  });
 };

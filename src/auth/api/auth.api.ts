@@ -1,9 +1,9 @@
-import axios from "axios";
+import axios, { RawAxiosRequestHeaders } from "axios";
 import { config } from "../config/config";
-import AsyncStorage from "react";
+import { ErrorValidationResponse } from "../interfaces/interfaces";
+import { AxiosError } from "axios";
 export class AuthApi {
   private static myInstance: AuthApi | null;
-  private uri = config.apiUrl;
   static getInstance() {
     if (this.myInstance == null) {
       this.myInstance = new AuthApi();
@@ -11,32 +11,50 @@ export class AuthApi {
     return this.myInstance;
   }
 
+  apiInstance = (accessToken?: string) => {
+    const headers: RawAxiosRequestHeaders = {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    };
+
+    if (accessToken && accessToken != "") {
+      headers.Authorization = `Bearer ${accessToken}`;
+    }
+
+    return axios.create({
+      baseURL: `${config.apiUrl}`,
+      headers,
+    });
+  };
+
   /**
    * Both login and register functions should be in a different api
    * refactor needed
    */
 
   async login(email: string, password: string) {
-    const response = await axios.post(
-      this.uri + "/app/login",
-      {
+    try {
+      const response = await this.apiInstance().post("/app/login", {
         email,
         password,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
+      });
+
+      if (response.status === 200) {
+        localStorage.setItem("token", response.data?.token);
+        localStorage.setItem("user", JSON.stringify(response.data?.user));
       }
-    );
 
-
-    if (response.status === 200) {
-      localStorage.setItem("token", response.data?.token);
+      return response;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const axiosError: AxiosError<ErrorValidationResponse> = error;
+        if (axiosError.response) {
+          const errorResponse: ErrorValidationResponse =
+            axiosError.response.data;
+          return errorResponse;
+        }
+      }
     }
-
-    return response;
   }
 
   async register(
@@ -47,23 +65,25 @@ export class AuthApi {
     email: string,
     password: string
   ) {
-    const response = await axios.post(
-      this.uri + "/app/register",
-      {
+    try {
+      const response = await this.apiInstance().post("/app/register", {
         first_name,
         last_name,
         gender,
         birthdate,
         email,
         password,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
+      });
+      return response;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const axiosError: AxiosError<ErrorValidationResponse> = error;
+        if (axiosError.response) {
+          const errorResponse: ErrorValidationResponse =
+            axiosError.response.data;
+          return errorResponse;
+        }
       }
-    );
-    return response;
+    }
   }
 }

@@ -6,7 +6,6 @@ import Select, {
   PropsValue,
   SingleValue,
 } from "react-select";
-import { ChangeEvent } from "react";
 
 type Props = {
   options: OptionsOrGroups<
@@ -36,24 +35,30 @@ type Props = {
   error?: string | undefined;
   touched?: boolean | undefined;
   isMulti?: boolean;
+  required?: boolean;
 };
 
 const CustomSelect = ({
   label,
   options,
-  isMulti = false,
   name,
   values,
-  onChange,
   touched,
-  error
+  error,
+  required = false,
+  isMulti = false,
+  onChange,
 }: Props) => {
   const className = `bg-gray-50 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full dark:border-gray-600 dark:placeholder-gray-400 dark:text-white ${
     isMulti ? "basic-multi-select" : ""
   }`;
   return (
     <div className="sm:col-span-3">
-      <label className="after:content-['*'] after:ml-0.5 after:text-red-500 block text-sm font-medium leading-6 text-gray-900 ">
+      <label
+        className={`${
+          required ? "after:content-['*'] after:ml-0.5 after:text-red-500" : ""
+        } block text-sm font-medium leading-6 text-gray-900`}
+      >
         {label}
       </label>
       <div className="mt-2">
@@ -67,8 +72,12 @@ const CustomSelect = ({
           onChange={onChange}
           styles={{
             control(base) {
-              return { ...base, minHeight: "34px!important" };
+              return { ...base, minHeight: "34px!important", color: "grey" };
             },
+            option: (provided) => ({
+              ...provided,
+              color: "grey",
+            }),
           }}
           value={values}
         />
