@@ -92,6 +92,9 @@ export class AuthApi {
       const accesToken = localStorage.getItem("token") as string;
       const user = JSON.parse(localStorage.getItem("user") as string);
 
+      if (!accesToken || !user) {
+        return false;
+      }
       const response = await this.apiInstance(accesToken).post("/app/logout", {
         userId: user?.id,
       });

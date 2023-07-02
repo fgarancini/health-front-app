@@ -8,7 +8,7 @@ const LogoutButton = () => {
     const authApi = new AuthApi();
     const response = await authApi.logout();
 
-    if (response?.status === 200) {
+    if (response && response?.status === 200) {
       navigate("/");
     }
   };

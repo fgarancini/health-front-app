@@ -27,6 +27,7 @@ const UserHistory = () => {
 
   return (
     <div className="m-5 border-2 border-slate-200 rounded-md p-5 text-slate-600">
+      <p className="h6 mb-5 font-medium underline">User Diagnoses History</p>
       {loading ? (
         <Loader />
       ) : (
