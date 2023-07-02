@@ -18,7 +18,14 @@ export interface Specialisation {
   SpecialistID: number;
 }
 
-export interface DaignosisResponse {
+export interface DiagnosisResponse {
   Issue: Issue;
   Specialisation: Specialisation;
+}
+
+export interface IssueHistory {
+  issue_id: number;
+  name: string;
+  accuracy: number;
+  created_at: Date;
 }

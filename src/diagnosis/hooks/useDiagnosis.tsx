@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import { DaignosisResponse, SymptomSelect } from "../interfaces/interfaces";
 import { PriaidApi } from "../api/Priaid.api";
+import { DiagnosisResponse, SymptomSelect } from "../interfaces/interfaces";
 
 const useDiagnosis = () => {
   const [symptoms, setSymptoms] = useState<SymptomSelect[]>([]);
   const [selectedSymptoms, setSelectedSymptoms] = useState<SymptomSelect[]>([]);
-  const [diagnoses, setDiagnoses] = useState<DaignosisResponse[]>([]);
+  const [diagnoses, setDiagnoses] = useState<DiagnosisResponse[]>([]);
   const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     async function getSymptoms() {
       const priaidApi = new PriaidApi();
@@ -38,12 +39,26 @@ const useDiagnosis = () => {
     }
   }, [selectedSymptoms]);
 
+  const handleSaveHistory = async (diagnosis: DiagnosisResponse) => {
+    const { ID, Name, Accuracy } = diagnosis.Issue;
+
+    const historyObject = {
+      ID,
+      Name,
+      Accuracy: String(Accuracy.toFixed(2)),
+    };
+
+    const priaidApi = new PriaidApi();
+
+    await priaidApi.saveDiagnosis(historyObject);
+  };
 
   return {
     symptoms,
     selectedSymptoms,
     diagnoses,
     setSelectedSymptoms,
+    handleSaveHistory,
     loading,
   };
 };

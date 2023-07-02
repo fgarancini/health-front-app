@@ -55,7 +55,7 @@ const RegisterForm = () => {
         values.email,
         values.password
       );
-      if (response?.status === 200) {
+      if (response?.status === 204) {
         setRegisterCompleted(true);
         setSubmitting(false);
         resetForm();
@@ -70,7 +70,7 @@ const RegisterForm = () => {
     <form onSubmit={handleSubmit}>
       <div className={`${styles.register}  shadow-lg shadow-cyan-200/70`}>
         <div className="space-y-12">
-          <div className="border-b border-gray-900/10 pb-12">
+          <div className="border-b border-gray-900/10 pb-8">
             <h2 className="text-base underline underline-offset-2 decoration-1 decoration-black-300 font-semibold leading-7 text-gray-900">
               Register
             </h2>
@@ -110,7 +110,16 @@ const RegisterForm = () => {
                 touched={touched.gender}
                 required={true}
               />{" "}
-              <CustomDatePicker />
+              <CustomDatePicker
+                label="Birthdate"
+                name="birthdate"
+                error={errors.birthdate as string}
+                touched={touched.birthdate as boolean}
+                onChange={async (date) =>
+                  await setFieldValue("birthdate", date)
+                }
+                value={values.birthdate}
+              />
               <Input
                 label="Email"
                 type="email"
@@ -133,11 +142,9 @@ const RegisterForm = () => {
               />
             </div>
           </div>
-          {registerCompleted && (
-            <p className="text-cyan-700">Register complete!</p>
-          )}
         </div>
-        <div className="mt-6 flex items-center justify-center gap-x-6">
+        <div className="mt-6 flex flex-col items-center justify-center gap-x-6">
+          {registerCompleted && <p className="text-cyan-700 mb-2">Please Login!</p>}
           {isSubmitting ? (
             <Loader />
           ) : (

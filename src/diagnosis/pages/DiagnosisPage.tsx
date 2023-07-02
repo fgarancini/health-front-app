@@ -2,29 +2,27 @@ import CustomSelect from "../../auth/components/CustomSelect";
 import Loader from "../../shared/components/Loader";
 import AcurracyBar from "../components/AcurracyBar";
 import useDiagnosis from "../hooks/useDiagnosis";
-import { SymptomSelect, DaignosisResponse } from '../interfaces/interfaces';
+import { SymptomSelect } from '../interfaces/interfaces';
 import styles from "../styles/diagnosis.module.css";
+import { Navigate } from "react-router-dom";
 
 const DiagnosisPage = () => {
+  const isAuth = localStorage.getItem('token') !== null;
+  
   const {
     diagnoses,
     setSelectedSymptoms,
     selectedSymptoms,
     loading,
     symptoms,
+    handleSaveHistory
   } = useDiagnosis();
 
-  const handleSaveHistory = (diagnosis:DaignosisResponse) => {
-    const { ID, Name, Accuracy } = diagnosis.Issue;
-
-    const historyObject = {
-      ID,
-      Name,
-      Accuracy,
-    };
-  
-    
-  };
+  if (!isAuth) {
+    return (
+      <Navigate to={'/'}/>
+    )
+  }
 
   return (
     <>

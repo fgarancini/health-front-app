@@ -86,4 +86,31 @@ export class AuthApi {
       }
     }
   }
+
+  async logout() {
+    try {
+      const accesToken = localStorage.getItem("token") as string;
+      const user = JSON.parse(localStorage.getItem("user") as string);
+
+      const response = await this.apiInstance(accesToken).post("/app/logout", {
+        userId: user?.id,
+      });
+
+      if (response.status === 200) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      }
+
+      return response;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const axiosError: AxiosError<ErrorValidationResponse> = error;
+        if (axiosError.response) {
+          const errorResponse: ErrorValidationResponse =
+            axiosError.response.data;
+          return errorResponse;
+        }
+      }
+    }
+  }
 }
